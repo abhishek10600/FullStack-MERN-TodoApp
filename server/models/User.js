@@ -63,10 +63,11 @@ userSchema.methods.getJwtToken = function () {
     });
 };
 
-userSchema.methods.getForgetPassword = function () {
+userSchema.methods.getForgetPasswordToken = function () {
     const forgotToken = crypto.randomBytes(20).toString("hex");
     this.forgotPasswordToken = crypto.createHash("sha256").update(forgotToken).digest("hex");
     this.forgetPasswordExpiry = Date.now() + 10 * 60 * 1000;
+    return forgotToken;
 };
 
 module.exports = mongoose.model("Users", userSchema);

@@ -1,6 +1,8 @@
 const User = require("../models/User.js");
 const cloudinary = require("cloudinary").v2;
 const cookieToken = require("../utils/cookieToken.js");
+const mailHelper = require("../utils/emailHelper.js");
+const crypto = require("crypto");
 
 exports.register = async (req, res, next) => {
     try {
@@ -73,6 +75,89 @@ exports.logout = async (req, res, next) => {
         })
     } catch (error) {
         console.log(error.message);
+        return next(new Error(error.message));
+    }
+}
+
+exports.forgotPassword = async (req, res, next) => {
+    try {
+        const { email } = req.body;
+        let user = await User.findOne({ email });
+        if (!user) {
+            return next(new Error("User with this email does not exists"));
+        }
+        const forgotPasswordToken = user.getForgetPasswordToken();
+        user.save({ validateBeforeSave: false });
+        const myUrl = `${req.protocol}://${req.get("host")}/api/v1/users/pasword/reset/${forgotPasswordToken}`;
+        const message = `Copy and paste the following link in the url and press enter ${myUrl}`;
+        try {
+            await mailHelper({
+                email: user.email,
+                subject: "TodoApp reset email",
+                message
+            });
+            res.status(200).json({
+                success: true,
+                message: "Reset password email sent to your email"
+            })
+        } catch (error) {
+            user.forgotPasswordToken = undefined;
+            user.forgetPasswordExpiry = undefined;
+            user.save({ validateBeforeSave: false });
+            return next(new Error(error.message));
+        }
+    } catch (error) {
+        return next(new Error(error.message));
+    }
+}
+
+exports.resetPassword = async (req, res, next) => {
+    try {
+        const token = req.params.token;
+        const { password, confirmPassword } = req.body;
+        if (password !== confirmPassword) {
+            return next(new Error("password and confirm password does not match"));
+        }
+        const encryptedToken = crypto.createHash("sha256").update(token).digest("hex");
+        const user = await User.findOne({
+            forgotPasswordToken: encryptedToken,
+            forgetPasswordExpiry: { $gt: Date.now() }
+        })
+        if (!user) {
+            return next(new Error("Token is invalid or expired"));
+        }
+        user.password = password;
+        user.forgotPasswordToken = undefined;
+        user.forgetPasswordExpiry = undefined;
+        await user.save();
+        res.status(200).json({
+            success: true,
+            message: "Your password has been successfully updated. Please login."
+        })
+    } catch (error) {
+        return next(new Error(error.message));
+    }
+}
+
+exports.changePassword = async (req, res, next) => {
+    try {
+        const userId = req.user.id;
+        const user = await User.findById(userId).select("+password");
+        if (!user) {
+            return next(new Error("User does not exists"));
+        }
+        const { oldPassword, newPassword, confirmNewPassword } = req.body;
+        const isOldPasswordValidated = await user.isPasswordValidated(oldPassword);
+        if (!isOldPasswordValidated) {
+            return next(new Error("Old password is incorrect"));
+        }
+        if (newPassword !== confirmNewPassword) {
+            return next(new Error("new password and confirm new password does not match"));
+        }
+        user.password = newPassword;
+        await user.save();
+        cookieToken(user, res);
+    } catch (error) {
         return next(new Error(error.message));
     }
 }
