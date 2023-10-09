@@ -7,6 +7,7 @@ const app = express();
 
 
 const userRouter = require("./routes/user.js");
+const taskRouter = require("./routes/task.js");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,6 +22,7 @@ app.use(fileUpload({
 
 //routes
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/tasks", taskRouter);
 
 
 module.exports = app;
