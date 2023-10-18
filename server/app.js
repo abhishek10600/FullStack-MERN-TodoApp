@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
 const cookieParser = require("cookie-parser");
+const CORS = require("cors");
 
 const app = express();
 
@@ -12,6 +13,7 @@ const taskRouter = require("./routes/task.js");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(CORS());
 
 //custom middlewares
 app.use(fileUpload({
