@@ -22,9 +22,10 @@ const SignupForm = () => {
         "http://localhost:4000/api/v1/users/register",
         formData,
         {
-          header: {
+          headers: {
             "Content-Type": "multipart/form-data",
           },
+          withCredentials: true,
         }
       );
       if (res.data.success === true) {

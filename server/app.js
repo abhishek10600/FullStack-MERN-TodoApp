@@ -13,7 +13,10 @@ const taskRouter = require("./routes/task.js");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(CORS());
+app.use(CORS({
+    origin: process.env.FRONTEND_URL,
+    credentials: true
+}));
 
 //custom middlewares
 app.use(fileUpload({
