@@ -2,6 +2,7 @@ const User = require("../models/User.js");
 const cloudinary = require("cloudinary").v2;
 const cookieToken = require("../utils/cookieToken.js");
 const mailHelper = require("../utils/emailHelper.js");
+const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
 exports.register = async (req, res, next) => {
@@ -157,6 +158,28 @@ exports.changePassword = async (req, res, next) => {
         user.password = newPassword;
         await user.save();
         cookieToken(user, res);
+    } catch (error) {
+        return next(new Error(error.message));
+    }
+}
+
+exports.getProfile = async (req, res, next) => {
+    try {
+        let user = {};
+        const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
+        if (!token) {
+            return res.status(200).json({
+                success: false,
+                user
+            })
+        }
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = await User.findById(decoded.id);
+        user = req.user;
+        return res.status(200).json({
+            success: true,
+            user
+        })
     } catch (error) {
         return next(new Error(error.message));
     }

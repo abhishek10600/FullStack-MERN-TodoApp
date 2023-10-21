@@ -3,9 +3,7 @@ const jwt = require("jsonwebtoken");
 
 exports.isLoggedIn = async (req, res, next) => {
     try {
-        console.log("is logged func");
         const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
-        console.log(token);
         if (!token) {
             return next(new Error("Loggin to use this feature"));
         }
