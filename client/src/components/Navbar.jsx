@@ -33,9 +33,10 @@ const Navbar = () => {
             >
               Logout
             </button>
-            <Link className="list-none text-xl" to="/signup">
-              User Profile
-            </Link>
+            <div className=" w-[60px] h-[60px] bg-red-900 rounded-full overflow-hidden">
+              <img src={user.photo.secure_url} />
+            </div>
+            {/* <span className="list-none text-xl">User Profile</span> */}
           </div>
         )}
         {!isLoggedIn && (
