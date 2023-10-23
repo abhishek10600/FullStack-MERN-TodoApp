@@ -2,8 +2,7 @@ import { useContext, useState } from "react";
 import FormData from "form-data";
 import axios from "axios";
 
-
-const InputBox = () => {
+const InputBox = ({ refresh, setRefresh }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
@@ -23,6 +22,9 @@ const InputBox = () => {
       }
     );
     if (res.data.success === true) {
+      setTitle("");
+      setDescription("");
+      setRefresh((prev) => !prev);
       alert("Task created successfully");
     } else {
       setError("Some error");

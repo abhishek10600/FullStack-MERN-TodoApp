@@ -28,7 +28,7 @@ exports.createTask = async (req, res, next) => {
 exports.getAllTasksOfLoggedInUser = async (req, res, next) => {
     try {
         const user = req.user._id;
-        const tasks = await Task.find({ user });
+        const tasks = await Task.find({ user }).sort({ 'createdAt': -1 });
         if (!tasks) {
             return res.status(404).json({
                 success: false,

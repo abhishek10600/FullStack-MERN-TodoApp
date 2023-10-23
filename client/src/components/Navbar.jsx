@@ -1,11 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
 
 const Navbar = () => {
-  const { user } = useContext(UserContext);
-  const { isLoggedIn } = useContext(UserContext);
+  const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const handleLogoutButtonClick = async () => {
     const res = await axios.get("http://localhost:4000/api/v1/users/logout", {
       headers: {
@@ -13,6 +12,10 @@ const Navbar = () => {
       },
       withCredentials: true,
     });
+    if (res.data.success === true) {
+      setUser({});
+      setIsLoggedIn(false);
+    }
   };
 
   return (

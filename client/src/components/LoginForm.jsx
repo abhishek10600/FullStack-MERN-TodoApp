@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import FormData from "form-data";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 const LoginForm = () => {
+  const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +26,8 @@ const LoginForm = () => {
       }
     );
     if (res.data.success === true) {
-      console.log(res.data);
+      setUser(res.data.user);
+      setIsLoggedIn(true);
       navigate("/");
     } else {
       console.log("Some error");
