@@ -1,34 +1,43 @@
 import axios from "axios";
 import React, { useState } from "react";
+import { toast } from "react-hot-toast";
 
 const TaskCard = ({ id, title, description, isComplete, setRefresh }) => {
   const [error, setError] = useState(false);
   const handleCompleteCheckboxChange = async (id) => {
-    const res = await axios.put(
-      `http://localhost:4000/api/v1/tasks/update/${id}`,
-      {},
-      {
-        withCredentials: true,
-      }
-    );
-    alert("Task updated successfully");
-    setRefresh((prev) => !prev);
+    try {
+      const res = await axios.put(
+        `http://localhost:4000/api/v1/tasks/update/${id}`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      toast.success("Task updated successfully");
+      setRefresh((prev) => !prev);
+    } catch (error) {
+      toast.error("Some error");
+    }
   };
   const handleDeleteButtonClick = async (id) => {
-    const res = await axios.delete(
-      `http://localhost:4000/api/v1/tasks/delete/${id}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
+    try {
+      const res = await axios.delete(
+        `http://localhost:4000/api/v1/tasks/delete/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      if (res.data.success === true) {
+        setRefresh((prev) => !prev);
+        toast.error("Task deleted!");
+      } else {
+        setError(true);
       }
-    );
-    if (res.data.success === true) {
-      setRefresh((prev) => !prev);
-      alert("Task deleted successfully");
-    } else {
-      setError(true);
+    } catch (error) {
+      toast.error("Some error!");
     }
   };
   return (

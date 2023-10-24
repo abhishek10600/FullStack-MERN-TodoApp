@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import { useContext, useEffect } from "react";
 import axios from "axios";
 import { UserContext } from "./context/UserContext";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const { setUser, setIsLoggedIn } = useContext(UserContext);
@@ -35,6 +36,7 @@ function App() {
         <Route exact path="/login" element={<Login />} />
         <Route exact path="/signup" element={<Signup />} />
       </Routes>
+      <Toaster />
     </div>
   );
 }

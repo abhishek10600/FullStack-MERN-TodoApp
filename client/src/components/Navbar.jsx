@@ -2,19 +2,25 @@ import { useContext } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { UserContext } from "../context/UserContext";
+import { toast } from "react-hot-toast";
 
 const Navbar = () => {
   const { user, setUser, isLoggedIn, setIsLoggedIn } = useContext(UserContext);
   const handleLogoutButtonClick = async () => {
-    const res = await axios.get("http://localhost:4000/api/v1/users/logout", {
-      headers: {
-        "Content-Type": "applicationj/json",
-      },
-      withCredentials: true,
-    });
-    if (res.data.success === true) {
-      setUser({});
-      setIsLoggedIn(false);
+    try {
+      const res = await axios.get("http://localhost:4000/api/v1/users/logout", {
+        headers: {
+          "Content-Type": "applicationj/json",
+        },
+        withCredentials: true,
+      });
+      if (res.data.success === true) {
+        setUser({});
+        setIsLoggedIn(false);
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      toast.error("Some error!");
     }
   };
 

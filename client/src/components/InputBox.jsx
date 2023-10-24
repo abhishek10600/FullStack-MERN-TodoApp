@@ -1,6 +1,7 @@
 import { useContext, useState } from "react";
 import FormData from "form-data";
 import axios from "axios";
+import { toast } from "react-hot-toast";
 
 const InputBox = ({ refresh, setRefresh }) => {
   const [title, setTitle] = useState("");
@@ -8,26 +9,31 @@ const InputBox = ({ refresh, setRefresh }) => {
   const [error, setError] = useState("");
   const handleSubmitButtonClick = async (ev) => {
     ev.preventDefault();
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("description", description);
-    const res = await axios.post(
-      "http://localhost:4000/api/v1/tasks/createTask",
-      formData,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
+    try {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      const res = await axios.post(
+        "http://localhost:4000/api/v1/tasks/createTask",
+        formData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
+      if (res.data.success === true) {
+        setTitle("");
+        setDescription("");
+        setRefresh((prev) => !prev);
+        toast.success("Task created successfully");
+      } else {
+        toast.error(res.data.message);
+        setError("Some error");
       }
-    );
-    if (res.data.success === true) {
-      setTitle("");
-      setDescription("");
-      setRefresh((prev) => !prev);
-      alert("Task created successfully");
-    } else {
-      setError("Some error");
+    } catch (error) {
+      toast.error("Some error");
     }
   };
   return (

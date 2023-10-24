@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import FormData from "form-data";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 const SignupForm = () => {
   const navigate = useNavigate();
   const [name, setName] = useState("");
@@ -10,29 +11,39 @@ const SignupForm = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [image, setImage] = useState([]);
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
   const handleSignupFormSubmit = async (ev) => {
     ev.preventDefault();
-    if (password === confirmPassword) {
-      const formData = new FormData();
-      formData.append("name", name);
-      formData.append("email", email);
-      formData.append("password", password);
-      formData.append("photo", image[0]);
-      const res = await axios.post(
-        "http://localhost:4000/api/v1/users/register",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-          withCredentials: true,
+    try {
+      setLoading(true);
+      if (password === confirmPassword) {
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("email", email);
+        formData.append("password", password);
+        formData.append("photo", image[0]);
+        const res = await axios.post(
+          "http://localhost:4000/api/v1/users/register",
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+            withCredentials: true,
+          }
+        );
+        if (res.data.success === true) {
+          toast.success(res.data.message);
+          setLoading(false);
+          navigate("/login");
         }
-      );
-      if (res.data.success === true) {
-        navigate("/login");
+      } else {
+        setError(true);
+        setLoading(false);
+        toast.error("Password and confirm password does not match!");
       }
-    } else {
-      setError(true);
+    } catch (error) {
+      toast.error(error.message);
     }
   };
   return (
